@@ -30,6 +30,13 @@
     }
   }
 
+  // Prevent Enter key from clicking focused buttons (avoids skipping screens)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && document.activeElement && document.activeElement.tagName === "BUTTON") {
+      e.preventDefault();
+    }
+  });
+
   // ── Welcome ──
   document.getElementById("start-btn").addEventListener("click", () => {
     nextScreen();
@@ -1157,19 +1164,14 @@
       dinoEl.style.top = y + "px";
     }
 
-    // Wander: autonomous movement that starts early and speeds up
+    // Wander: autonomous movement starting at tap 7, fixed 1100ms interval
     let wanderInterval = null;
     function startWandering() {
       if (wanderInterval) return;
-      const delay = Math.max(500, 900 - taps * 30);
       wanderInterval = setInterval(() => {
         if (taps >= totalTaps) { clearInterval(wanderInterval); wanderInterval = null; return; }
-        // Occasionally do a double-hop
-        moveDino(taps, 0.6);
-        if (taps > 12 && Math.random() < 0.45) {
-          setTimeout(() => moveDino(taps, 0.5), 380);
-        }
-      }, delay);
+        moveDino(taps, 0.5);
+      }, 1100);
     }
 
     function moveDino(tap, scaleFactor) {
@@ -1178,10 +1180,10 @@
       const maxX = areaRect.width - dinoSize - padding;
       const maxY = areaRect.height - dinoSize - padding;
       const factor = scaleFactor !== undefined ? scaleFactor : 1;
-      // Distance grows faster and jumps more wildly at higher taps
-      const base = 40 + tap * 14;
-      const jitter = Math.random() * 40;
-      const distance = Math.min((base + jitter) * factor, Math.max(maxX, maxY) * 0.8);
+      // Distance grows steadily with taps, small jitter for unpredictability
+      const base = 35 + tap * 10;
+      const jitter = Math.random() * 20;
+      const distance = Math.min((base + jitter) * factor, Math.max(maxX, maxY) * 0.72);
       const angle = Math.random() * Math.PI * 2;
       const currentLeft = parseFloat(dinoEl.style.left) || 0;
       const currentTop  = parseFloat(dinoEl.style.top)  || 0;
@@ -1214,26 +1216,21 @@
         return;
       }
 
-      // Start wandering from tap 4, restart with faster interval each time
-      if (taps >= 4) {
-        if (wanderInterval) { clearInterval(wanderInterval); wanderInterval = null; }
-        startWandering();
-      }
+      // Start wandering at tap 7
+      if (taps === 7) startWandering();
 
-      // Move on every tap from the first one
-      animating = true;
-      const transTime = Math.max(0.08, 0.2 - taps * 0.007);
-      dinoEl.style.transition = `left ${transTime}s cubic-bezier(0.22,1,0.36,1), top ${transTime}s cubic-bezier(0.22,1,0.36,1)`;
-      dinoEl.classList.add("wiggle");
-      setTimeout(() => {
-        dinoEl.classList.remove("wiggle");
-        moveDino(taps);
-        // At higher tap counts, do a surprise second jump shortly after
-        if (taps > 10 && Math.random() < 0.5) {
-          setTimeout(() => moveDino(taps, 0.7), transTime * 1000 + 150);
-        }
-        setTimeout(() => { animating = false; }, transTime * 1000 + 300);
-      }, 160);
+      // Move from tap 2 onward, transition speed scales gently
+      if (taps >= 2) {
+        animating = true;
+        const transTime = Math.max(0.12, 0.22 - taps * 0.005);
+        dinoEl.style.transition = `left ${transTime}s cubic-bezier(0.22,1,0.36,1), top ${transTime}s cubic-bezier(0.22,1,0.36,1)`;
+        dinoEl.classList.add("wiggle");
+        setTimeout(() => {
+          dinoEl.classList.remove("wiggle");
+          moveDino(taps);
+          setTimeout(() => { animating = false; }, transTime * 1000 + 80);
+        }, 170);
+      }
     });
   }
 
