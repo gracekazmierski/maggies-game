@@ -23,6 +23,7 @@
 
     <!-- Ski Game -->
     <div class="screen" id="ski-screen">
+      <canvas class="bg-canvas" id="ski-bg"></canvas>
       <p class="game-instruction" id="ski-instruction">ski through the trees -- level 1</p>
       <canvas id="ski-canvas"></canvas>
       <div class="ski-controls" id="ski-controls">
@@ -44,7 +45,7 @@
     <!-- Dino Game -->
     <div class="screen" id="dino-screen">
       <canvas class="bg-canvas" id="dino-bg"></canvas>
-      <p class="game-instruction dino-title" id="dino-instruction">tap the dino (if you can)</p>
+      <p class="game-instruction dino-title" id="dino-instruction">tap the dinosaur (if you can)</p>
       <p class="dino-counter" id="dino-counter"></p>
       <p class="dino-message" id="dino-msg"></p>
       <div id="dino-area">
@@ -52,7 +53,7 @@
       </div>
       <div class="win-overlay" id="dino-win">
         <div class="win-inner">
-          <p class="win-text">you got the dino :)</p>
+          <p class="win-text">amaze amaze! you got the dinosaur!</p>
           <button class="btn btn-next" id="dino-next-btn">next game</button>
         </div>
       </div>
@@ -85,7 +86,7 @@
     <div class="screen" id="final-screen">
       <canvas class="bg-canvas" id="final-bg"></canvas>
       <div class="final-content">
-        <p class="final-text">You made it to the end :)</p>
+        <p class="final-text">You made it to the end!</p>
         <p class="final-text final-text-delay">Let me take you out soon.</p>
         <button class="btn btn-next btn-play-again" id="play-again-btn">or...play again!</button>
       </div>

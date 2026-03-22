@@ -48,6 +48,136 @@
   // BACKGROUND RENDERERS
   // ================================================================
 
+  // Animated ski background — large snowflakes, glowing sparkles, mountain silhouettes
+  let skiBgRaf = null;
+  function initSkiBg() {
+    if (skiBgRaf) { cancelAnimationFrame(skiBgRaf); skiBgRaf = null; }
+    const canvas = document.getElementById("ski-bg");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const W = canvas.width;
+    const H = canvas.height;
+
+    // Large slow-falling snowflakes in the background
+    const FLAKE_COUNT = 55;
+    const flakes = Array.from({ length: FLAKE_COUNT }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: 2 + Math.random() * 5,
+      speed: 0.4 + Math.random() * 0.8,
+      drift: (Math.random() - 0.5) * 0.4,
+      opacity: 0.25 + Math.random() * 0.45,
+      phase: Math.random() * Math.PI * 2,
+    }));
+
+    // Sparkle glints that appear and fade
+    const SPARKLE_COUNT = 22;
+    const sparkles = Array.from({ length: SPARKLE_COUNT }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      life: Math.random(),
+      speed: 0.004 + Math.random() * 0.006,
+      size: 2 + Math.random() * 4,
+    }));
+
+    function drawMountains() {
+      // Far mountains — pale
+      ctx.fillStyle = "rgba(200,218,205,0.5)";
+      ctx.beginPath();
+      ctx.moveTo(0, H);
+      ctx.lineTo(0, H * 0.52);
+      ctx.lineTo(W * 0.12, H * 0.30);
+      ctx.lineTo(W * 0.28, H * 0.48);
+      ctx.lineTo(W * 0.44, H * 0.24);
+      ctx.lineTo(W * 0.60, H * 0.45);
+      ctx.lineTo(W * 0.75, H * 0.20);
+      ctx.lineTo(W * 0.88, H * 0.38);
+      ctx.lineTo(W, H * 0.28);
+      ctx.lineTo(W, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // Near mountains — slightly deeper
+      ctx.fillStyle = "rgba(185,208,192,0.55)";
+      ctx.beginPath();
+      ctx.moveTo(0, H);
+      ctx.lineTo(0, H * 0.70);
+      ctx.lineTo(W * 0.18, H * 0.52);
+      ctx.lineTo(W * 0.35, H * 0.68);
+      ctx.lineTo(W * 0.52, H * 0.48);
+      ctx.lineTo(W * 0.68, H * 0.64);
+      ctx.lineTo(W * 0.82, H * 0.50);
+      ctx.lineTo(W, H * 0.62);
+      ctx.lineTo(W, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // Snow caps on far peaks
+      const peaks = [
+        { x: W * 0.12, y: H * 0.30 },
+        { x: W * 0.44, y: H * 0.24 },
+        { x: W * 0.75, y: H * 0.20 },
+      ];
+      peaks.forEach(({ x, y }) => {
+        ctx.fillStyle = "rgba(240,248,240,0.55)";
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - W * 0.06, y + H * 0.10);
+        ctx.lineTo(x + W * 0.06, y + H * 0.10);
+        ctx.closePath();
+        ctx.fill();
+      });
+    }
+
+    function tick(t) {
+      ctx.clearRect(0, 0, W, H);
+
+      drawMountains();
+
+      // Snowflakes
+      flakes.forEach((f) => {
+        f.y += f.speed;
+        f.x += f.drift + Math.sin(t * 0.0008 + f.phase) * 0.3;
+        if (f.y > H + 10) { f.y = -10; f.x = Math.random() * W; }
+        if (f.x > W + 10) f.x = -10;
+        if (f.x < -10) f.x = W + 10;
+
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${f.opacity})`;
+        ctx.fill();
+      });
+
+      // Sparkles
+      sparkles.forEach((s) => {
+        s.life += s.speed;
+        if (s.life > 1) {
+          s.life = 0;
+          s.x = Math.random() * W;
+          s.y = Math.random() * H;
+        }
+        const alpha = s.life < 0.5 ? s.life * 2 : (1 - s.life) * 2;
+        const sz = s.size * alpha;
+        ctx.save();
+        ctx.translate(s.x, s.y);
+        ctx.fillStyle = `rgba(255,255,255,${alpha * 0.7})`;
+        // Four-point star
+        for (let i = 0; i < 4; i++) {
+          ctx.beginPath();
+          ctx.ellipse(0, 0, sz * 0.18, sz, 0, (Math.PI / 2) * i, (Math.PI / 2) * i + Math.PI);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+
+      skiBgRaf = requestAnimationFrame(tick);
+    }
+
+    skiBgRaf = requestAnimationFrame(tick);
+  }
+
   // Soft snowfall + mountain silhouettes for welcome
   function initWelcomeBg() {
     const canvas = document.getElementById("welcome-bg");
@@ -1005,6 +1135,7 @@
 
   function startSkiGame() {
     currentLevel = 0;
+    initSkiBg();
     loadMazeLevel(currentLevel);
   }
 
@@ -1294,25 +1425,25 @@
 
     const messages = [
       "oh hi",
-      "wait--",
-      "hey :)",
-      "stop that",
-      "i'm busy",
-      "seriously?",
-      "okay okay hi",
-      "you again",
+      "hello :)",
+      "hey there",
+      "oh you're persistent",
+      "i like it",
+      "okay okay",
+      "you're doing great",
+      "seriously though",
       "still going?",
-      "persistent little thing",
+      "wow okay",
       "i respect it",
-      "i do NOT",
-      "okay maybe a little",
-      "you're kind of cute",
-      "don't tell anyone",
-      "ugh fine",
-      "you're really cute",
-      "this is embarrassing",
-      "okay i give up",
-      "fine. you win. hi.",
+      "you're kind of fun",
+      "okay maybe a lot",
+      "you're sweet, you know that?",
+      "don't stop now",
+      "you're pretty.",
+      "really pretty. i mean it.",
+      "okay i'm flustered",
+      "you win, okay?",
+      "fine. you win. hi :)",
     ];
 
     let taps = 0;
