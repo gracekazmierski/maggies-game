@@ -1574,7 +1574,7 @@
     function flipCard(card) {
       if (locked || card.classList.contains("flipped") || card.classList.contains("flipping") || flipped.length >= 2) return;
 
-      // scaleX to 0, swap face, scaleX back to 1
+      // scale3d to 0, swap face, scale3d back to 1
       card.classList.add("flipping");
       setTimeout(() => {
         card.classList.add("flipped");
@@ -1607,14 +1607,14 @@
                 setTimeout(() => {
                   c.classList.remove("flipped");
                   c.classList.remove("flipping");
-                }, 120);
+                }, 200);
               });
               flipped = [];
               locked = false;
             }, 700);
           }
         }
-      }, 120);
+      }, 200);
     }
   }
 

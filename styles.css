@@ -299,14 +299,16 @@ body {
   border: 1px solid rgba(109, 142, 112, 0.12);
   cursor: pointer;
   position: relative;
-  transition: transform 0.12s ease;
+  transform: scale3d(1, 1, 1);
+  transition: transform 0.20s ease-in-out;
+  will-change: transform;
   box-shadow: 0 2px 10px rgba(0,0,0,0.04);
   -webkit-tap-highlight-color: transparent;
   overflow: hidden;
 }
 
 .match-card.flipping {
-  transform: scaleX(0);
+  transform: scale3d(0, 1, 1);
 }
 
 .match-card-front,
