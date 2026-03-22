@@ -353,6 +353,37 @@ body {
   box-shadow: 0 0 0 2px rgba(109, 142, 112, 0.3), 0 4px 16px rgba(109, 142, 112, 0.12);
 }
 
+/* ── Celebration Screen ── */
+#celebration-screen {
+  justify-content: center;
+}
+
+.celebration-content {
+  text-align: center;
+  z-index: 2;
+  position: relative;
+}
+
+.celebration-text {
+  font-size: 3rem;
+  font-weight: 300;
+  color: #5a7a5e;
+  letter-spacing: 0.02em;
+  animation: fadeScaleIn 0.7s ease-out both;
+}
+
+.celebration-sub {
+  font-size: 1.3rem;
+  font-weight: 300;
+  color: #8aaa8e;
+  margin-top: 10px;
+  animation: fadeScaleIn 0.7s 0.3s ease-out both;
+}
+
+.celebration-content .btn-next {
+  animation: fadeScaleIn 0.7s 0.7s ease-out both;
+}
+
 /* ── Final Screen ── */
 .final-content {
   text-align: center;

@@ -11,6 +11,7 @@
     "ski-screen",
     "dino-screen",
     "match-screen",
+    "celebration-screen",
     "final-screen",
   ];
   let currentScreen = 0;
@@ -322,6 +323,96 @@
         if (s.y < -20) { s.y = h + 20; s.x = Math.random() * w; }
         if (s.x < -20) s.x = w + 20;
         if (s.x > w + 20) s.x = -20;
+      });
+
+      requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  // Celebration screen — confetti burst
+  function initCelebrationBg() {
+    const canvas = document.getElementById("celebration-bg");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const w = canvas.width;
+    const h = canvas.height;
+
+    const colors = ["#7a9a7e", "#a8c4a8", "#5a7a5e", "#c8ddc0", "#8aaa8e", "#dce8da", "#6d8e70"];
+
+    // Confetti particles bursting from center
+    const particles = [];
+    for (let i = 0; i < 90; i++) {
+      const angle = (Math.random() * Math.PI * 2);
+      const speed = 1.5 + Math.random() * 4;
+      particles.push({
+        x: w / 2, y: h / 2,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 2,
+        gravity: 0.06 + Math.random() * 0.04,
+        size: 4 + Math.random() * 7,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.15,
+        shape: Math.random() < 0.5 ? "rect" : "circle",
+        opacity: 1,
+        fade: 0.004 + Math.random() * 0.004,
+      });
+    }
+
+    // Ripple rings from center
+    const rings = [
+      { r: 0, maxR: Math.max(w, h) * 0.7, speed: 3, opacity: 0.18 },
+      { r: 0, maxR: Math.max(w, h) * 0.5, speed: 2, opacity: 0.12 },
+    ];
+
+    function frame() {
+      ctx.clearRect(0, 0, w, h);
+
+      // Background
+      const grad = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, w * 0.7);
+      grad.addColorStop(0, "#dfe9db");
+      grad.addColorStop(1, "#c8dbc2");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Expanding rings
+      rings.forEach(ring => {
+        if (ring.r < ring.maxR) {
+          const alpha = ring.opacity * (1 - ring.r / ring.maxR);
+          ctx.strokeStyle = `rgba(109, 142, 112, ${alpha})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(w/2, h/2, ring.r, 0, Math.PI * 2);
+          ctx.stroke();
+          ring.r += ring.speed;
+        }
+      });
+
+      // Confetti
+      particles.forEach(p => {
+        if (p.opacity <= 0) return;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = p.color;
+        if (p.shape === "rect") {
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.vx *= 0.99;
+        p.rotation += p.rotSpeed;
+        p.opacity -= p.fade;
       });
 
       requestAnimationFrame(frame);
@@ -955,6 +1046,24 @@
     const trail = [];
     const maxTrail = 80;
 
+    // Falling snowflakes
+    const snowflakes = [];
+    for (let i = 0; i < 18; i++) {
+      snowflakes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: 0.8 + Math.random() * 1.4,
+        speed: 0.25 + Math.random() * 0.45,
+        drift: (Math.random() - 0.5) * 0.3,
+        opacity: 0.3 + Math.random() * 0.35,
+      });
+    }
+
+    // Occasional bird that flies across
+    let bird = null;
+    let birdCooldown = 180 + Math.floor(Math.random() * 200);
+    let frameCount = 0;
+
     // Keyboard
     function keyHandler(e) {
       const down = e.type === "keydown";
@@ -1051,6 +1160,31 @@
         ctx.fill();
       }
 
+      // Snowflakes
+      snowflakes.forEach(f => {
+        ctx.fillStyle = `rgba(255, 255, 255, ${f.opacity})`;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        ctx.fill();
+        f.y += f.speed;
+        f.x += f.drift;
+        if (f.y > canvas.height + 4) { f.y = -4; f.x = Math.random() * canvas.width; }
+        if (f.x < -4) f.x = canvas.width + 4;
+        if (f.x > canvas.width + 4) f.x = -4;
+      });
+
+      // Bird
+      if (bird) {
+        ctx.strokeStyle = `rgba(90, 120, 90, ${bird.opacity})`;
+        ctx.lineWidth = 1.2;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(bird.x - bird.size, bird.y);
+        ctx.quadraticCurveTo(bird.x - bird.size * 0.5, bird.y - bird.size * 0.6, bird.x, bird.y);
+        ctx.quadraticCurveTo(bird.x + bird.size * 0.5, bird.y - bird.size * 0.6, bird.x + bird.size, bird.y);
+        ctx.stroke();
+      }
+
       // Player
       drawSkier(ctx, player.x, player.y, player.radius * 3);
     }
@@ -1058,6 +1192,26 @@
     let rafId;
     function update() {
       if (won) return;
+
+      // Bird spawning
+      frameCount++;
+      if (!bird && frameCount > birdCooldown) {
+        const goRight = Math.random() < 0.5;
+        bird = {
+          x: goRight ? -10 : canvas.width + 10,
+          y: canvas.height * (0.05 + Math.random() * 0.25),
+          vx: goRight ? 1.2 + Math.random() * 0.8 : -(1.2 + Math.random() * 0.8),
+          size: 4 + Math.random() * 3,
+          opacity: 0.55 + Math.random() * 0.3,
+        };
+      }
+      if (bird) {
+        bird.x += bird.vx;
+        if (bird.x < -20 || bird.x > canvas.width + 20) {
+          bird = null;
+          birdCooldown = frameCount + 200 + Math.floor(Math.random() * 250);
+        }
+      }
 
       if (keys.up) player.vy -= speed;
       if (keys.down) player.vy += speed;
@@ -1095,18 +1249,22 @@
         window.removeEventListener("keyup", keyHandler);
 
         const skiNextBtn = document.getElementById("ski-next-btn");
+        const levelEndMessages = [
+          "not bad :)",
+          "she's getting warmer",
+          "smooth run :)",
+        ];
+        winText.textContent = levelEndMessages[levelIdx];
+        winOverlay.classList.add("show");
+
         if (levelIdx < mazes.length - 1) {
-          winText.textContent = `level ${levelIdx + 1} done`;
           skiNextBtn.textContent = "next level";
-          winOverlay.classList.add("show");
           skiNextBtn.onclick = () => {
             currentLevel++;
             loadMazeLevel(currentLevel);
           };
         } else {
-          winText.textContent = "smooth run :)";
           skiNextBtn.textContent = "next game";
-          winOverlay.classList.add("show");
           skiNextBtn.onclick = () => {
             nextScreen();
             startDinoGame();
@@ -1135,11 +1293,26 @@
     const totalTaps = 20;
 
     const messages = [
-      "hey", "...", "hey :)", "stop that", "seriously?",
-      "okay hi", "...", "still here?", "persistent", "i'll move faster",
-      "good luck", "nope", "almost gave up?", "you're stubborn",
-      "kind of impressive", "okay okay", "you're cute", "really cute",
-      "ugh", "fine, you win",
+      "oh hi",
+      "wait--",
+      "hey :)",
+      "stop that",
+      "i'm busy",
+      "seriously?",
+      "okay okay hi",
+      "you again",
+      "still going?",
+      "persistent little thing",
+      "i respect it",
+      "i do NOT",
+      "okay maybe a little",
+      "you're kind of cute",
+      "don't tell anyone",
+      "ugh fine",
+      "you're really cute",
+      "this is embarrassing",
+      "okay i give up",
+      "fine. you win. hi.",
     ];
 
     let taps = 0;
@@ -1164,14 +1337,14 @@
       dinoEl.style.top = y + "px";
     }
 
-    // Wander: autonomous movement starting at tap 7, fixed 1100ms interval
+    // Wander: autonomous movement starting at tap 5, 950ms interval
     let wanderInterval = null;
     function startWandering() {
       if (wanderInterval) return;
       wanderInterval = setInterval(() => {
         if (taps >= totalTaps) { clearInterval(wanderInterval); wanderInterval = null; return; }
         moveDino(taps, 0.5);
-      }, 1100);
+      }, 950);
     }
 
     function moveDino(tap, scaleFactor) {
@@ -1216,11 +1389,11 @@
         return;
       }
 
-      // Start wandering at tap 7
-      if (taps === 7) startWandering();
+      // Start wandering at tap 5
+      if (taps === 5) startWandering();
 
-      // Move from tap 2 onward, transition speed scales gently
-      if (taps >= 2) {
+      // Move from tap 1 onward, transition speed scales gently
+      if (taps >= 1) {
         animating = true;
         const transTime = Math.max(0.12, 0.22 - taps * 0.005);
         dinoEl.style.transition = `left ${transTime}s cubic-bezier(0.22,1,0.36,1), top ${transTime}s cubic-bezier(0.22,1,0.36,1)`;
@@ -1291,7 +1464,7 @@
                 document.getElementById("match-win").classList.add("show");
                 document.getElementById("match-next-btn").onclick = () => {
                   nextScreen();
-                  startFinalScreen();
+                  startCelebration();
                 };
               }, 500);
             }
@@ -1312,6 +1485,17 @@
         }
       }, 120);
     }
+  }
+
+  // ================================================================
+  // CELEBRATION SCREEN
+  // ================================================================
+  function startCelebration() {
+    initCelebrationBg();
+    document.getElementById("celebration-next-btn").onclick = () => {
+      nextScreen();
+      startFinalScreen();
+    };
   }
 
   // ================================================================
