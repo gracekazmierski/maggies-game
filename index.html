@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>maggie's games</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Welcome Screen -->
+    <div class="screen" id="welcome-screen">
+      <canvas class="bg-canvas" id="welcome-bg"></canvas>
+      <div class="welcome-content">
+        <h1 class="welcome-title">hi maggie!</h1>
+        <p class="welcome-sub">ready for a game?</p>
+        <button class="btn" id="start-btn">start</button>
+      </div>
+    </div>
+
+    <!-- Ski Game -->
+    <div class="screen" id="ski-screen">
+      <p class="game-instruction" id="ski-instruction">ski through the trees -- level 1</p>
+      <canvas id="ski-canvas"></canvas>
+      <div class="ski-controls" id="ski-controls">
+        <button class="ctrl-btn" data-dir="up">^</button>
+        <div class="ctrl-row">
+          <button class="ctrl-btn" data-dir="left">&lt;</button>
+          <button class="ctrl-btn" data-dir="down">v</button>
+          <button class="ctrl-btn" data-dir="right">&gt;</button>
+        </div>
+      </div>
+      <div class="win-overlay" id="ski-win">
+        <div class="win-inner">
+          <p class="win-text" id="ski-win-text">smooth run :)</p>
+          <button class="btn btn-next" id="ski-next-btn">next game</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dino Game -->
+    <div class="screen" id="dino-screen">
+      <canvas class="bg-canvas" id="dino-bg"></canvas>
+      <p class="game-instruction dino-title" id="dino-instruction">tap the dino (if you can)</p>
+      <p class="dino-counter" id="dino-counter"></p>
+      <p class="dino-message" id="dino-msg"></p>
+      <div id="dino-area">
+        <div id="dino" class="dino-char"></div>
+      </div>
+      <div class="win-overlay" id="dino-win">
+        <div class="win-inner">
+          <p class="win-text">you got the dino :)</p>
+          <button class="btn btn-next" id="dino-next-btn">next game</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Match Game -->
+    <div class="screen" id="match-screen">
+      <canvas class="bg-canvas" id="match-bg"></canvas>
+      <p class="game-instruction">match the pairs</p>
+      <div class="match-grid" id="match-grid"></div>
+      <div class="win-overlay" id="match-win">
+        <div class="win-inner">
+          <p class="win-text">nice memory, sleepy girl</p>
+          <button class="btn btn-next" id="match-next-btn">next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Screen -->
+    <div class="screen" id="final-screen">
+      <canvas class="bg-canvas" id="final-bg"></canvas>
+      <div class="final-content">
+        <p class="final-text">You made it to the end :)</p>
+        <p class="final-text final-text-delay">Let me take you out soon.</p>
+        <button class="btn btn-next btn-play-again" id="play-again-btn">or...play again!</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
